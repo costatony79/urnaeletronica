@@ -1,0 +1,37 @@
+<%- include ("partials/header.ejs") %>
+<title>Boletim de Urna</title>
+<body>
+    <%- include ("partials/navbar.ejs") %>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                    
+            </div>
+            <div class="card-body">
+                <div class="card-title h2 text-center">BOLETIM DE URNA</div>
+                <p class="card-text">
+                    <table class="table table-hover">
+                        <thead class="text-center bg-primary text-light table-bordered">
+                            <th scope="col">NÚMERO</th>
+                            <th scope="col">CANDIDATO</th>
+                            <th scope="col">VOTOS</th>
+                        </thead>
+                    <% aluno.forEach(aluno => {%>
+                        <tbody>
+                            <th scope="row"><%= aluno.numero %></th>
+                            <th scope="row"><%= aluno.nome %></th>
+                            <th scope="row"><%= aluno.votos %></th>
+                        </tbody>
+                          <% }); %>
+                        </p>
+                    </table>
+        </div>
+
+        <form action="\apagar_votos" method="POST">
+            <button class="btn btn-primary form-control" type="submit">INICIAR NOVA ELEIÇÃO</button>
+        </form>
+        
+    </div>
+
+    <%- include ("partials/footer.ejs") %>
+</body>
