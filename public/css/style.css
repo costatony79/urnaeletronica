@@ -1,0 +1,42 @@
+body{
+    background-color: #eceff1;
+}
+#container-principal{
+    padding: 5vh;
+    margin-top: 5vh;
+    background-color: white;
+}
+#tela{
+    background-color: #eceff1;
+    margin-right: 4vh;
+}
+.displayUrna{
+    font-size: 10vh;
+    width: 100%;
+    height:16vh;
+    border: none;
+    text-align: center;
+    padding: 0%;
+    background-color: white;
+}
+.teclado{
+    padding: 3vh;
+    background-color: black;
+    color: white;
+}
+.tecla{
+    width: 100%;
+    height: 15%;
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+    font-size: 4vmin;   
+}
+.tecla-especial{
+    width: 100%;
+    height: 15%;
+    font-size: 2vmin;
+    margin-bottom: 2vh;
+}
+.voto{
+    font-size: 4vmin; 
+}

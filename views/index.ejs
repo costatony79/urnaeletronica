@@ -1,0 +1,85 @@
+<%- include ("partials/header.ejs") %>
+<title>Urna Eletrônica</title>
+<body>
+    <%- include ("partials/navbar.ejs") %>
+    <div class="container-fluid" id="container-principal">
+        <div class="row">
+            <div class="col-7" id="tela">
+                <hr>
+                <div class="row h5">
+                    <h5>NOME: </h5><br>
+                    <% aluno.forEach(aluno => {%>
+                        <% if(numero_candidato==""){ %>
+                        <% } else if(aluno.numero == numero_candidato) { %>
+                            <%= aluno.nome %>
+                            <% } %>
+                    <% }); %>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-body" id="">
+                                <form action="/" method="POST">
+                                    <input class="form-control displayUrna" type="text" name="display_urna" id="" size="2" maxlength="2">
+                                    <input class="form-control btn btn-primary" id="voto_um" type="submit" value="OK">
+                                    <input type="hidden" value="" id="recebe_voto">
+                                </form>                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 justify-content-center"><img src="../img/<%= numero_candidato %>.jpg" alt="" class="img-fluid"></div>
+                </div>
+                <hr>
+                <div class="row h5">Número: <%= numero_candidato %></div>
+                <div class="row h5">Data de Nascimento: <% aluno.forEach(aluno => {%>
+                    <% if(numero_candidato==""){ %>
+                    <% } else if(aluno.numero == numero_candidato) { %>
+                        <%= aluno.data_nascimento %>
+                        <% } %>
+                <% }); %></div>
+                <div class="row h5">Idade: <% aluno.forEach(aluno => {%>
+                    <% if(numero_candidato==""){ %>
+                    <% } else if(aluno.numero == numero_candidato) { %>
+                        <%= aluno.idade %>
+                        <% } %>
+                <% }); %></div>
+            </div>
+            <div class="col-4 teclado">
+                <div class=""><img class="img-fluid" src="/img/logo_teclado.png" alt=""></div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-4">
+                                <button class="btn btn-dark tecla">1</button>
+                                <button class="btn btn-dark tecla">4</button>
+                                <button class="btn btn-dark tecla">7</button>
+                                <button class="btn btn-dark tecla"></button>
+                                <button class="btn btn-light text-dark tecla-especial" id="branco">BRANCO</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn btn-dark tecla">2</button>
+                                <button class="btn btn-dark tecla">5</button>
+                                <button class="btn btn-dark tecla">8</button>
+                                <button class="btn btn-dark tecla">0</button>
+                                <a class="btn btn-warning text-dark tecla-especial" id="corrige" onclick="clearDisplay()">CORRIGE</a>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn btn-dark tecla">3</button>
+                                <button class="btn btn-dark tecla">6</button>
+                                <button class="btn btn-dark tecla">9</button>
+                                <button class="btn btn-dark tecla"></button>
+                                <form action="/contar_voto" method="POST">
+                                    <input type="hidden" value="<%= numero_candidato %>" name="num_candidato">
+                                    <button class="btn btn-success text-dark tecla-especial" onclick="finalizaVoto()">CONFIRMA</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>       
+    <script src="/js/script.js"></script>
+</body>
+<%- include ("partials/footer.ejs") %>
