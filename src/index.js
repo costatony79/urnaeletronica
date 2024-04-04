@@ -71,10 +71,10 @@ app.post("/contar_voto", async (req, res) => {
         await Alunos.update({votos: votos++}, {where: {id}})
        res.redirect("/");      
     }*/
-    Alunos.findOne({where:{id: id}}).then(votos => {
+    Alunos.findOne({where:{numero: id}}).then(votos => {
 
         const newVoto = votos.votos + 1;
-        Alunos.update({votos: newVoto}, {where:{id: id}});
+        Alunos.update({votos: newVoto}, {where:{numero: id}});
         console.log(newVoto);
 
     }).then(result => {
