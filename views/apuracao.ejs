@@ -8,9 +8,15 @@
     <div class="card-body">
         <h1 class="h2 text-center mb-0">BOLETIM DE URNA</h1>
         <p class="text-center text-muted"><%= turma.nome %> · <%= agora %></p>
+        <%
+            // Como na eleição de verdade: a porcentagem de cada candidato é
+            // calculada sobre os votos válidos (brancos e nulos não entram).
+            const validos = total - brancos - nulos;
+            const pct = (parte, todo) => (todo ? (Math.round(parte * 1000 / todo) / 10).toLocaleString('pt-BR') : '0') + '%';
+        %>
         <table class="table table-bordered text-center">
             <thead class="bg-primary text-light">
-                <tr><th>NÚMERO</th><th>CANDIDATO</th><th>VOTOS</th><th>%</th></tr>
+                <tr><th>NÚMERO</th><th>CANDIDATO</th><th>VOTOS</th><th>% DOS VÁLIDOS</th></tr>
             </thead>
             <tbody>
             <% resultado.forEach((c, i) => { %>
@@ -18,13 +24,22 @@
                     <td><%= c.numero %></td>
                     <td><%= c.nome %></td>
                     <td><%= c.votos %></td>
-                    <td><%= total ? Math.round(c.votos * 1000 / total) / 10 : 0 %>%</td>
+                    <td><%= pct(c.votos, validos) %></td>
                 </tr>
             <% }) %>
-                <tr class="text-muted"><td>—</td><td>Brancos</td><td><%= brancos %></td><td><%= total ? Math.round(brancos * 1000 / total) / 10 : 0 %>%</td></tr>
-                <tr class="text-muted"><td>—</td><td>Nulos</td><td><%= nulos %></td><td><%= total ? Math.round(nulos * 1000 / total) / 10 : 0 %>%</td></tr>
             </tbody>
-            <tfoot><tr class="font-weight-bold"><td colspan="2">TOTAL DE VOTOS</td><td><%= total %></td><td></td></tr></tfoot>
+        </table>
+
+        <table class="table table-bordered text-center resumo-votos">
+            <thead class="bg-light">
+                <tr><th colspan="2">RESUMO</th><th>VOTOS</th><th>% DO TOTAL</th></tr>
+            </thead>
+            <tbody>
+                <tr class="font-weight-bold"><td colspan="2">Votos válidos</td><td><%= validos %></td><td><%= pct(validos, total) %></td></tr>
+                <tr><td colspan="2">Brancos</td><td><%= brancos %></td><td><%= pct(brancos, total) %></td></tr>
+                <tr><td colspan="2">Nulos</td><td><%= nulos %></td><td><%= pct(nulos, total) %></td></tr>
+            </tbody>
+            <tfoot><tr class="font-weight-bold"><td colspan="2">TOTAL DE VOTOS</td><td><%= total %></td><td><%= total ? '100%' : '0%' %></td></tr></tfoot>
         </table>
         <% if (resultado.length > 1 && resultado[0].votos > 0 && resultado[0].votos === resultado[1].votos) { %>
         <div class="alert alert-warning">Houve empate no primeiro lugar.</div>

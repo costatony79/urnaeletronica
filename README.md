@@ -20,7 +20,8 @@ Vários professores da escola podem usar, cada um com a sua conta e as suas turm
   Backspace corrige).
 - **Modo urna**: enquanto a urna está aberta, o computador fica travado na tela de votação.
   Para sair, o professor clica em “Encerrar votação” e digita a própria senha.
-- **Apuração**: boletim de urna com votos, porcentagens, brancos, nulos e aviso de empate.
+- **Apuração**: boletim de urna como o real: votos e porcentagem de cada candidato sobre
+  os votos válidos, e um resumo com votos válidos, brancos, nulos e total. Avisa empate.
   Pode ser impresso. Zerar os votos para uma nova eleição pede a senha do professor.
 
 Cada professor só vê as próprias turmas, candidatos, fotos e votos; só o administrador vê todas. Os votos são secretos:
