@@ -1,6 +1,6 @@
 <%- include("partes/topo", { titulo: "Boletim de urna" }) %>
 <nav aria-label="breadcrumb" class="d-print-none"><ol class="breadcrumb bg-transparent px-0">
-    <li class="breadcrumb-item"><a href="/painel">Minhas turmas</a></li>
+    <li class="breadcrumb-item"><% if (usuario.papel === 'admin') { %><a href="/admin/turmas">Todas as turmas</a><% } else { %><a href="/painel">Minhas turmas</a><% } %></li>
     <li class="breadcrumb-item"><a href="/turmas/<%= turma.id %>"><%= turma.nome %></a></li>
     <li class="breadcrumb-item active">Apuração</li>
 </ol></nav>

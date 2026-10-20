@@ -16,7 +16,12 @@ const sql = {
            (SELECT COUNT(*) FROM candidatos c WHERE c.turma_id = t.id) AS candidatos,
            (SELECT COUNT(*) FROM votos v WHERE v.turma_id = t.id) AS votos
     FROM turmas t WHERE t.professor_id = ? ORDER BY t.nome COLLATE NOCASE`),
-  turma: db.prepare("SELECT * FROM turmas WHERE id = ? AND professor_id = ?"),
+  turma: db.prepare(`
+    SELECT t.*, u.nome AS professor_nome FROM turmas t JOIN usuarios u ON u.id = t.professor_id
+    WHERE t.id = ? AND t.professor_id = ?`),
+  turmaQualquer: db.prepare(`
+    SELECT t.*, u.nome AS professor_nome FROM turmas t JOIN usuarios u ON u.id = t.professor_id
+    WHERE t.id = ?`),
   criarTurma: db.prepare("INSERT INTO turmas (professor_id, nome) VALUES (?, ?)"),
   renomearTurma: db.prepare("UPDATE turmas SET nome = ? WHERE id = ?"),
   excluirTurma: db.prepare("DELETE FROM turmas WHERE id = ?"),
@@ -83,8 +88,13 @@ function apagarFoto(arquivo) {
 }
 
 // ---------- Ajudantes ----------
+// O professor só abre as próprias turmas; o administrador abre qualquer uma.
+function buscarTurma(id, usuario) {
+  return usuario.papel === "admin" ? sql.turmaQualquer.get(id) : sql.turma.get(id, usuario.id);
+}
+
 function carregarTurma(req, res, next) {
-  const turma = sql.turma.get(Number(req.params.id), req.usuario.id);
+  const turma = buscarTurma(Number(req.params.id), req.usuario);
   if (!turma) {
     return res.status(404).render("erro", { titulo: "Turma não encontrada", mensagem: "Essa turma não existe ou não é sua." });
   }
@@ -214,17 +224,50 @@ rotas.post("/turmas/:id/candidatos/:cid/editar", carregarTurma, receberFoto, csr
   res.redirect(`/turmas/${req.turma.id}`);
 });
 
-rotas.post("/turmas/:id/candidatos/:cid/excluir", carregarTurma, (req, res) => {
+// Remover candidato: sem votos, basta confirmar. Com votos, o professor
+// precisa zerar a votação antes; o administrador pode remover direto,
+// junto com os votos dele, confirmando com a própria senha.
+function carregarCandidato(req, res, next) {
   const candidato = sql.candidato.get(Number(req.params.cid), req.turma.id);
-  if (candidato) {
-    if (sql.votosDoCandidato.get(candidato.id).n > 0) {
-      req.avisar("warning", `${candidato.nome} já recebeu votos. Zere a votação antes de excluir um candidato.`);
-    } else {
-      apagarFoto(candidato.foto);
-      sql.excluirCandidato.run(candidato.id);
-      req.avisar("success", `${candidato.nome} foi removido(a).`);
+  if (!candidato) return res.redirect(`/turmas/${req.turma.id}`);
+  req.candidato = candidato;
+  req.votosCandidato = sql.votosDoCandidato.get(candidato.id).n;
+  next();
+}
+
+function paginaExcluirCandidato(req, res, erro = null) {
+  res.render("candidato_excluir", {
+    turma: req.turma,
+    candidato: req.candidato,
+    votos: req.votosCandidato,
+    admin: req.usuario.papel === "admin",
+    erro,
+  });
+}
+
+rotas.get("/turmas/:id/candidatos/:cid/excluir", carregarTurma, carregarCandidato, (req, res) =>
+  paginaExcluirCandidato(req, res)
+);
+
+rotas.post("/turmas/:id/candidatos/:cid/excluir", carregarTurma, carregarCandidato, (req, res) => {
+  const { candidato, votosCandidato } = req;
+  if (votosCandidato > 0) {
+    if (req.usuario.papel !== "admin") {
+      return paginaExcluirCandidato(req, res);
+    }
+    if (!conferirSenha(String(req.body.senha || ""), req.usuario.senha_hash)) {
+      res.status(401);
+      return paginaExcluirCandidato(req, res, "Senha incorreta. O candidato não foi removido.");
     }
   }
+  apagarFoto(candidato.foto);
+  sql.excluirCandidato.run(candidato.id); // os votos dele são apagados junto
+  req.avisar(
+    "success",
+    votosCandidato > 0
+      ? `${candidato.nome} foi removido(a), junto com ${votosCandidato} voto(s).`
+      : `${candidato.nome} foi removido(a).`
+  );
   res.redirect(`/turmas/${req.turma.id}`);
 });
 
@@ -262,16 +305,19 @@ rotas.post("/turmas/:id/zerar", carregarTurma, (req, res) => {
   res.redirect(`/turmas/${req.turma.id}/apuracao`);
 });
 
-// ---------- Mostrar fotos (só para o dono da turma) ----------
+// ---------- Mostrar fotos (só para o dono da turma e o administrador) ----------
 const fotoDoProfessor = db.prepare(`
   SELECT c.foto FROM candidatos c JOIN turmas t ON t.id = c.turma_id
   WHERE c.foto = ? AND t.professor_id = ?`);
+const fotoExiste = db.prepare("SELECT foto FROM candidatos WHERE foto = ?");
 
 rotas.get("/fotos/:arquivo", (req, res) => {
   const arquivo = path.basename(req.params.arquivo);
-  if (!fotoDoProfessor.get(arquivo, req.usuario.id)) return res.sendStatus(404);
+  const permitido =
+    req.usuario.papel === "admin" ? fotoExiste.get(arquivo) : fotoDoProfessor.get(arquivo, req.usuario.id);
+  if (!permitido) return res.sendStatus(404);
   res.set("Cache-Control", "private, max-age=3600");
   res.sendFile(path.join(FOTOS_DIR, arquivo));
 });
 
-module.exports = { rotas, idade };
+module.exports = { rotas, idade, buscarTurma, apagarFoto };

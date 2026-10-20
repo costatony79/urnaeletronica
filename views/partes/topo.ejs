@@ -15,6 +15,7 @@
         <span class="text-light mr-3"><%= usuario.nome %></span>
         <a class="btn btn-sm btn-outline-light mr-2" href="/painel">Minhas turmas</a>
         <% if (usuario.papel === 'admin') { %>
+        <a class="btn btn-sm btn-outline-light mr-2" href="/admin/turmas">Todas as turmas</a>
         <a class="btn btn-sm btn-outline-light mr-2" href="/admin/professores">Professores</a>
         <% } %>
         <a class="btn btn-sm btn-outline-light mr-2" href="/trocar-senha">Trocar senha</a>

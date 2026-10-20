@@ -1,0 +1,28 @@
+<%- include("partes/topo", { titulo: "Todas as turmas" }) %>
+<h1 class="h3 mb-3">Todas as turmas da escola</h1>
+<% if (turmas.length === 0) { %>
+<div class="alert alert-light border">Nenhuma turma criada ainda.</div>
+<% } else { %>
+<div class="table-responsive">
+<table class="table table-hover bg-white border">
+    <thead class="bg-primary text-light">
+        <tr><th>Turma</th><th>Professor(a)</th><th>Candidatos</th><th>Votos</th><th class="text-right">Ações</th></tr>
+    </thead>
+    <tbody>
+    <% turmas.forEach(t => { %>
+        <tr>
+            <td class="font-weight-bold"><%= t.nome %></td>
+            <td><%= t.professor %><% if (!t.professor_ativo) { %> <span class="badge badge-secondary">desativado</span><% } %></td>
+            <td><%= t.candidatos %></td>
+            <td><%= t.votos %></td>
+            <td class="text-right text-nowrap">
+                <a class="btn btn-sm btn-outline-primary" href="/turmas/<%= t.id %>">Abrir</a>
+                <a class="btn btn-sm btn-outline-secondary" href="/turmas/<%= t.id %>/apuracao">Apuração</a>
+            </td>
+        </tr>
+    <% }) %>
+    </tbody>
+</table>
+</div>
+<% } %>
+<%- include("partes/rodape") %>

@@ -1,7 +1,8 @@
 // Área do administrador: criar professores, gerar senhas provisórias,
 // desativar e reativar contas.
 const express = require("express");
-const { db, gerarSenhaProvisoria, hashSenha } = require("../db");
+const { db, gerarSenhaProvisoria, hashSenha, conferirSenha } = require("../db");
+const { apagarFoto } = require("./turmas");
 
 const rotas = express.Router();
 
@@ -86,6 +87,55 @@ rotas.post("/professores/:id/ativo", (req, res) => {
   mudarAtivo.run(ativar ? 1 : 0, conta.id);
   if (!ativar) encerrarSessoes.run(conta.id);
   req.avisar("success", `${conta.nome} foi ${ativar ? "reativado(a)" : "desativado(a)"}.`);
+  res.redirect("/admin/professores");
+});
+
+// ---------- Todas as turmas da escola ----------
+const todasAsTurmas = db.prepare(`
+  SELECT t.id, t.nome, u.nome AS professor, u.ativo AS professor_ativo,
+         (SELECT COUNT(*) FROM candidatos c WHERE c.turma_id = t.id) AS candidatos,
+         (SELECT COUNT(*) FROM votos v WHERE v.turma_id = t.id) AS votos
+  FROM turmas t JOIN usuarios u ON u.id = t.professor_id
+  ORDER BY u.nome COLLATE NOCASE, t.nome COLLATE NOCASE`);
+
+rotas.get("/turmas", (req, res) => {
+  res.render("admin_turmas", { turmas: todasAsTurmas.all() });
+});
+
+// ---------- Excluir uma conta (com as turmas, fotos e votos dela) ----------
+const turmasDaConta = db.prepare("SELECT id, nome FROM turmas WHERE professor_id = ? ORDER BY nome COLLATE NOCASE");
+const fotosDaConta = db.prepare(`
+  SELECT c.foto FROM candidatos c JOIN turmas t ON t.id = c.turma_id
+  WHERE t.professor_id = ? AND c.foto IS NOT NULL`);
+const excluirConta = db.prepare("DELETE FROM usuarios WHERE id = ?");
+
+function carregarConta(req, res, next) {
+  const conta = buscar.get(Number(req.params.id));
+  if (!conta) return res.redirect("/admin/professores");
+  if (conta.id === req.usuario.id) {
+    req.avisar("warning", "Você não pode excluir a sua própria conta.");
+    return res.redirect("/admin/professores");
+  }
+  req.conta = conta;
+  next();
+}
+
+function paginaExcluirConta(req, res, erro = null) {
+  res.render("admin_excluir_professor", { conta: req.conta, turmas: turmasDaConta.all(req.conta.id), erro });
+}
+
+rotas.get("/professores/:id/excluir", carregarConta, (req, res) => paginaExcluirConta(req, res));
+
+rotas.post("/professores/:id/excluir", carregarConta, (req, res) => {
+  if (!conferirSenha(String(req.body.senha || ""), req.usuario.senha_hash)) {
+    res.status(401);
+    return paginaExcluirConta(req, res, "Senha incorreta. A conta não foi excluída.");
+  }
+  const fotos = fotosDaConta.all(req.conta.id);
+  encerrarSessoes.run(req.conta.id);
+  excluirConta.run(req.conta.id); // turmas, candidatos e votos são apagados junto
+  fotos.forEach((f) => apagarFoto(f.foto));
+  req.avisar("success", `A conta de ${req.conta.nome} foi excluída, com todas as turmas dela.`);
   res.redirect("/admin/professores");
 });
 

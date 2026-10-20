@@ -2,11 +2,10 @@
 // tela; para sair, o professor digita a própria senha.
 const express = require("express");
 const { db, conferirSenha } = require("../db");
-const { idade } = require("./turmas");
+const { idade, buscarTurma } = require("./turmas");
 
 const rotas = express.Router();
 
-const turmaDoProfessor = db.prepare("SELECT * FROM turmas WHERE id = ? AND professor_id = ?");
 const candidatos = db.prepare("SELECT id, nome, numero, foto, data_nascimento FROM candidatos WHERE turma_id = ? ORDER BY numero");
 const candidatoPorNumero = db.prepare("SELECT id FROM candidatos WHERE turma_id = ? AND numero = ?");
 const registrarVoto = db.prepare("INSERT INTO votos (turma_id, candidato_id, tipo) VALUES (?, ?, ?)");
@@ -14,7 +13,7 @@ const registrarVoto = db.prepare("INSERT INTO votos (turma_id, candidato_id, tip
 // Só entra quem abriu a urna desta turma pelo painel.
 function urnaAberta(req, res, next) {
   const id = Number(req.params.id);
-  const turma = turmaDoProfessor.get(id, req.usuario.id);
+  const turma = buscarTurma(id, req.usuario);
   if (!turma || req.session.urnaTurmaId !== id) {
     return res.redirect(turma ? `/turmas/${id}` : "/painel");
   }

@@ -8,7 +8,10 @@ Vários professores da escola podem usar, cada um com a sua conta e as suas turm
 - **Administrador**: cria as contas dos professores. Cada conta nova recebe uma
   **senha provisória**, que aparece uma única vez para ser repassada ao professor.
   O administrador também pode gerar uma nova senha provisória (quando alguém esquece
-  a senha) e desativar contas.
+  a senha), desativar e excluir contas. Ele vê **todas as turmas da escola** e pode
+  gerenciar qualquer uma: abrir, editar, apurar e excluir turmas e candidatos,
+  inclusive candidatos que já têm votos (os votos dele são apagados junto).
+  Ações que apagam dados pedem a senha do administrador.
 - **Professor**: no primeiro acesso, troca a senha provisória por uma senha pessoal.
   Depois cria as suas turmas, cadastra os candidatos (com foto, se quiser) e abre a urna.
 - **Urna**: os alunos votam todos no mesmo computador, um de cada vez, como na urna real.
@@ -20,7 +23,7 @@ Vários professores da escola podem usar, cada um com a sua conta e as suas turm
 - **Apuração**: boletim de urna com votos, porcentagens, brancos, nulos e aviso de empate.
   Pode ser impresso. Zerar os votos para uma nova eleição pede a senha do professor.
 
-Cada professor só vê as próprias turmas, candidatos, fotos e votos. Os votos são secretos:
+Cada professor só vê as próprias turmas, candidatos, fotos e votos; só o administrador vê todas. Os votos são secretos:
 o sistema guarda em quem se votou, nunca quem votou.
 
 ## Rodando no computador

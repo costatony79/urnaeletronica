@@ -1,0 +1,38 @@
+<%- include("partes/topo", { titulo: "Remover candidato" }) %>
+<div class="card mx-auto caixa-media">
+    <div class="card-body">
+        <h1 class="h4">Remover <%= candidato.nome %> (número <%= candidato.numero %>)</h1>
+        <p class="text-muted"><%= turma.nome %></p>
+        <% if (votos === 0) { %>
+        <p>Este candidato ainda não recebeu votos.</p>
+        <form action="/turmas/<%= turma.id %>/candidatos/<%= candidato.id %>/excluir" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="btn btn-danger">Remover candidato</button>
+            <a class="btn btn-link" href="/turmas/<%= turma.id %>">Cancelar</a>
+        </form>
+        <% } else if (admin) { %>
+        <div class="alert alert-warning">
+            Este candidato tem <strong><%= votos %> voto(s)</strong>. Ao remover, os votos dele também serão apagados
+            e a apuração da turma muda. Isso não pode ser desfeito.
+        </div>
+        <% if (erro) { %><div class="alert alert-danger"><%= erro %></div><% } %>
+        <form action="/turmas/<%= turma.id %>/candidatos/<%= candidato.id %>/excluir" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <div class="form-group">
+                <label for="senha">Digite a sua senha para confirmar</label>
+                <input class="form-control" id="senha" name="senha" type="password" autocomplete="current-password" required autofocus>
+            </div>
+            <button class="btn btn-danger">Remover candidato e os votos dele</button>
+            <a class="btn btn-link" href="/turmas/<%= turma.id %>">Cancelar</a>
+        </form>
+        <% } else { %>
+        <div class="alert alert-warning">
+            Este candidato já recebeu <strong><%= votos %> voto(s)</strong>. Para removê-lo, primeiro zere a votação na
+            página de apuração, ou peça ao administrador.
+        </div>
+        <a class="btn btn-primary" href="/turmas/<%= turma.id %>/apuracao">Ir para a apuração</a>
+        <a class="btn btn-link" href="/turmas/<%= turma.id %>">Voltar</a>
+        <% } %>
+    </div>
+</div>
+<%- include("partes/rodape") %>

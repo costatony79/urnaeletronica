@@ -67,8 +67,9 @@
                 <form action="/admin/professores/<%= p.id %>/ativo" method="POST" class="d-inline">
                     <input type="hidden" name="_csrf" value="<%= csrf %>">
                     <input type="hidden" name="ativo" value="<%= p.ativo ? 0 : 1 %>">
-                    <button class="btn btn-sm <%= p.ativo ? 'btn-outline-danger' : 'btn-outline-success' %>"><%= p.ativo ? 'Desativar' : 'Reativar' %></button>
+                    <button class="btn btn-sm <%= p.ativo ? 'btn-outline-warning' : 'btn-outline-success' %>"><%= p.ativo ? 'Desativar' : 'Reativar' %></button>
                 </form>
+                <a class="btn btn-sm btn-outline-danger" href="/admin/professores/<%= p.id %>/excluir">Excluir</a>
                 <% } else { %><span class="text-muted small">Você</span><% } %>
             </td>
         </tr>

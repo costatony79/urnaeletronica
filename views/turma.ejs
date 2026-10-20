@@ -1,11 +1,14 @@
 <%- include("partes/topo", { titulo: turma.nome }) %>
 <nav aria-label="breadcrumb"><ol class="breadcrumb bg-transparent px-0">
-    <li class="breadcrumb-item"><a href="/painel">Minhas turmas</a></li>
+    <li class="breadcrumb-item"><% if (usuario.papel === 'admin') { %><a href="/admin/turmas">Todas as turmas</a><% } else { %><a href="/painel">Minhas turmas</a><% } %></li>
     <li class="breadcrumb-item active"><%= turma.nome %></li>
 </ol></nav>
 
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2"><%= turma.nome %></h1>
+    <div class="mb-2">
+        <h1 class="h3 mb-0"><%= turma.nome %></h1>
+        <div class="text-muted small">Professor(a): <%= turma.professor_nome %></div>
+    </div>
     <div class="mb-2">
         <a class="btn btn-outline-primary" href="/turmas/<%= turma.id %>/apuracao">Apuração (<%= totalVotos %> voto<%= totalVotos === 1 ? '' : 's' %>)</a>
         <form action="/turmas/<%= turma.id %>/abrir-urna" method="POST" class="d-inline">
@@ -40,10 +43,7 @@
             </div>
             <div class="card-footer p-2 d-flex">
                 <a class="btn btn-sm btn-outline-primary mr-1" href="/turmas/<%= turma.id %>/candidatos/<%= c.id %>/editar">Editar</a>
-                <form action="/turmas/<%= turma.id %>/candidatos/<%= c.id %>/excluir" method="POST" onsubmit="return confirm('Remover este candidato?')">
-                    <input type="hidden" name="_csrf" value="<%= csrf %>">
-                    <button class="btn btn-sm btn-outline-danger">Remover</button>
-                </form>
+                <a class="btn btn-sm btn-outline-danger" href="/turmas/<%= turma.id %>/candidatos/<%= c.id %>/excluir">Remover</a>
             </div>
         </div>
     </div>

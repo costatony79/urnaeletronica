@@ -1,0 +1,25 @@
+<%- include("partes/topo", { titulo: "Excluir conta" }) %>
+<div class="card mx-auto caixa-media border-danger">
+    <div class="card-body">
+        <h1 class="h4 text-danger">Excluir a conta de <%= conta.nome %></h1>
+        <p>Usuário: <strong><%= conta.usuario %></strong></p>
+        <% if (turmas.length) { %>
+        <p>Serão apagadas junto, <strong>sem possibilidade de recuperar</strong>, estas turmas, com todos os candidatos, fotos e votos:</p>
+        <ul><% turmas.forEach(t => { %><li><%= t.nome %></li><% }) %></ul>
+        <% } else { %>
+        <p>Esta conta não tem turmas.</p>
+        <% } %>
+        <p class="small text-muted">Se a pessoa só saiu da escola e você quer guardar os resultados, use “Desativar” em vez de excluir.</p>
+        <% if (erro) { %><div class="alert alert-danger"><%= erro %></div><% } %>
+        <form action="/admin/professores/<%= conta.id %>/excluir" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <div class="form-group">
+                <label for="senha">Digite a sua senha para confirmar</label>
+                <input class="form-control" id="senha" name="senha" type="password" autocomplete="current-password" required autofocus>
+            </div>
+            <button class="btn btn-danger">Excluir definitivamente</button>
+            <a class="btn btn-link" href="/admin/professores">Cancelar</a>
+        </form>
+    </div>
+</div>
+<%- include("partes/rodape") %>
