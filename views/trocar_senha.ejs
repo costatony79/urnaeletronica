@@ -1,0 +1,28 @@
+<%- include("partes/topo", { titulo: "Trocar senha" }) %>
+<div class="card mx-auto caixa-estreita">
+    <div class="card-body">
+        <h1 class="h4 mb-3">Trocar senha</h1>
+        <% if (provisoria) { %>
+        <div class="alert alert-info">Você entrou com uma senha provisória. Crie agora a sua senha pessoal para continuar.</div>
+        <% } %>
+        <% if (erro) { %><div class="alert alert-danger"><%= erro %></div><% } %>
+        <form action="/trocar-senha" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <div class="form-group">
+                <label for="senha_atual"><%= provisoria ? "Senha provisória" : "Senha atual" %></label>
+                <input class="form-control" id="senha_atual" name="senha_atual" type="password" autocomplete="current-password" required>
+            </div>
+            <div class="form-group">
+                <label for="nova_senha">Nova senha</label>
+                <input class="form-control" id="nova_senha" name="nova_senha" type="password" minlength="8" autocomplete="new-password" required>
+                <small class="form-text text-muted">Pelo menos 8 caracteres.</small>
+            </div>
+            <div class="form-group">
+                <label for="confirmar">Confirme a nova senha</label>
+                <input class="form-control" id="confirmar" name="confirmar" type="password" minlength="8" autocomplete="new-password" required>
+            </div>
+            <button class="btn btn-primary btn-block">Salvar nova senha</button>
+        </form>
+    </div>
+</div>
+<%- include("partes/rodape") %>

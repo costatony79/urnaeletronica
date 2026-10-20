@@ -1,8 +1,8 @@
-//importando a classe app do meu index
-const app = require("./index");
+// Liga o servidor.
+const app = require("./app");
 
-//servidor
-app.listen(1314, ()=>{
-    console.log("Urna Eletrônica Rodando, na porta 1314");
+const PORTA = Number(process.env.PORT) || 1314;
+
+app.listen(PORTA, () => {
+  console.log(`Urna Eletrônica rodando em http://localhost:${PORTA}`);
 });
-

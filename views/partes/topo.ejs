@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= titulo %> · Urna Eletrônica</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-primary d-print-none">
+    <a class="navbar-brand" href="/"><img src="/img/juslany.png" alt="Escola Municipal Juslany Flores"></a>
+    <% if (locals.usuario) { %>
+    <div class="d-flex align-items-center flex-wrap menu">
+        <span class="text-light mr-3"><%= usuario.nome %></span>
+        <a class="btn btn-sm btn-outline-light mr-2" href="/painel">Minhas turmas</a>
+        <% if (usuario.papel === 'admin') { %>
+        <a class="btn btn-sm btn-outline-light mr-2" href="/admin/professores">Professores</a>
+        <% } %>
+        <a class="btn btn-sm btn-outline-light mr-2" href="/trocar-senha">Trocar senha</a>
+        <form action="/sair" method="POST" class="d-inline">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="btn btn-sm btn-light">Sair</button>
+        </form>
+    </div>
+    <% } else { %>
+    <div class="text-light h5 mb-0">MINHA URNA ELETRÔNICA</div>
+    <% } %>
+</nav>
+<main class="container my-4">
+<% if (locals.aviso) { %>
+    <div class="alert alert-<%= aviso.tipo %>" role="alert"><%= aviso.texto %></div>
+<% } %>

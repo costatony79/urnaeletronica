@@ -1,0 +1,21 @@
+<%- include("partes/topo", { titulo: "Entrar" }) %>
+<div class="card mx-auto caixa-estreita">
+    <div class="card-body">
+        <h1 class="h4 mb-3 text-center">Entrar</h1>
+        <% if (erro) { %><div class="alert alert-danger"><%= erro %></div><% } %>
+        <form action="/login" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <div class="form-group">
+                <label for="usuario">Usuário</label>
+                <input class="form-control" id="usuario" name="usuario" value="<%= usuarioDigitado %>" autocomplete="username" autocapitalize="none" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input class="form-control" id="senha" name="senha" type="password" autocomplete="current-password" required>
+            </div>
+            <button class="btn btn-primary btn-block">Entrar</button>
+        </form>
+        <p class="text-muted small mt-3 mb-0">Não tem conta? Peça ao administrador da escola.</p>
+    </div>
+</div>
+<%- include("partes/rodape") %>

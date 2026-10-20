@@ -10,3 +10,6 @@ public/img/alunos/
 
 # Configurações locais e senhas
 .env
+
+# Banco de dados, fotos enviadas e chave de sessão (ficam só no servidor)
+data/

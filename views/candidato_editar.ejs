@@ -1,0 +1,44 @@
+<%- include("partes/topo", { titulo: "Editar candidato" }) %>
+<nav aria-label="breadcrumb"><ol class="breadcrumb bg-transparent px-0">
+    <li class="breadcrumb-item"><a href="/painel">Minhas turmas</a></li>
+    <li class="breadcrumb-item"><a href="/turmas/<%= turma.id %>"><%= turma.nome %></a></li>
+    <li class="breadcrumb-item active">Editar candidato</li>
+</ol></nav>
+<div class="card mx-auto caixa-media">
+    <div class="card-body">
+        <h1 class="h4 mb-3">Editar candidato</h1>
+        <% if (erro) { %><div class="alert alert-danger"><%= erro %></div><% } %>
+        <form action="/turmas/<%= turma.id %>/candidatos/<%= candidato.id %>/editar" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <div class="form-group">
+                <label for="nome">Nome</label>
+                <input class="form-control" id="nome" name="nome" value="<%= form.nome %>" maxlength="80" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-4">
+                    <label for="numero">Número</label>
+                    <input class="form-control" id="numero" name="numero" value="<%= form.numero %>" inputmode="numeric" pattern="\d{2}" maxlength="2" required>
+                </div>
+                <div class="form-group col-8">
+                    <label for="data_nascimento">Data de nascimento</label>
+                    <input class="form-control" id="data_nascimento" name="data_nascimento" type="date" value="<%= form.data_nascimento || '' %>">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Foto</label>
+                <% if (candidato.foto) { %>
+                <div class="mb-2"><img class="foto-candidato rounded border" src="/fotos/<%= candidato.foto %>" alt="Foto atual"></div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="remover_foto" name="remover_foto" value="1">
+                    <label class="form-check-label" for="remover_foto">Remover a foto</label>
+                </div>
+                <% } %>
+                <input class="form-control-file" name="foto" type="file" accept="image/jpeg,image/png,image/webp">
+                <small class="form-text text-muted"><%= candidato.foto ? "Escolha um arquivo só se quiser trocar a foto." : "JPG, PNG ou WEBP, até 5 MB." %></small>
+            </div>
+            <button class="btn btn-primary">Salvar</button>
+            <a class="btn btn-link" href="/turmas/<%= turma.id %>">Cancelar</a>
+        </form>
+    </div>
+</div>
+<%- include("partes/rodape") %>

@@ -1,0 +1,100 @@
+<%- include("partes/topo", { titulo: turma.nome }) %>
+<nav aria-label="breadcrumb"><ol class="breadcrumb bg-transparent px-0">
+    <li class="breadcrumb-item"><a href="/painel">Minhas turmas</a></li>
+    <li class="breadcrumb-item active"><%= turma.nome %></li>
+</ol></nav>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-2"><%= turma.nome %></h1>
+    <div class="mb-2">
+        <a class="btn btn-outline-primary" href="/turmas/<%= turma.id %>/apuracao">Apuração (<%= totalVotos %> voto<%= totalVotos === 1 ? '' : 's' %>)</a>
+        <form action="/turmas/<%= turma.id %>/abrir-urna" method="POST" class="d-inline">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="btn btn-success">Abrir a urna</button>
+        </form>
+    </div>
+</div>
+
+<div class="alert alert-light border small">
+    Ao abrir a urna, este computador fica travado na tela de votação. Para sair, clique em
+    “Encerrar votação”, no canto da urna, e digite a sua senha.
+</div>
+
+<h2 class="h5">Candidatos</h2>
+<% if (candidatos.length === 0) { %>
+<p class="text-muted">Nenhum candidato cadastrado ainda.</p>
+<% } else { %>
+<div class="row">
+    <% candidatos.forEach(c => { %>
+    <div class="col-6 col-md-4 col-lg-3 mb-3">
+        <div class="card h-100">
+            <% if (c.foto) { %>
+            <img class="card-img-top foto-candidato" src="/fotos/<%= c.foto %>" alt="Foto de <%= c.nome %>">
+            <% } else { %>
+            <div class="card-img-top foto-candidato sem-foto">sem foto</div>
+            <% } %>
+            <div class="card-body p-2">
+                <div class="h4 mb-0"><%= c.numero %></div>
+                <div class="font-weight-bold"><%= c.nome %></div>
+                <% if (c.idade !== null) { %><div class="small text-muted"><%= c.idade %> anos</div><% } %>
+            </div>
+            <div class="card-footer p-2 d-flex">
+                <a class="btn btn-sm btn-outline-primary mr-1" href="/turmas/<%= turma.id %>/candidatos/<%= c.id %>/editar">Editar</a>
+                <form action="/turmas/<%= turma.id %>/candidatos/<%= c.id %>/excluir" method="POST" onsubmit="return confirm('Remover este candidato?')">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <button class="btn btn-sm btn-outline-danger">Remover</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <% }) %>
+</div>
+<% } %>
+
+<div class="card mb-4" id="novo-candidato">
+    <div class="card-body">
+        <h2 class="h5">Cadastrar candidato</h2>
+        <% if (erro) { %><div class="alert alert-danger"><%= erro %></div><% } %>
+        <form action="/turmas/<%= turma.id %>/candidatos" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label for="nome">Nome</label>
+                    <input class="form-control" id="nome" name="nome" value="<%= form.nome %>" maxlength="80" required>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="numero">Número</label>
+                    <input class="form-control" id="numero" name="numero" value="<%= form.numero %>" inputmode="numeric" pattern="\d{2}" maxlength="2" placeholder="07" required>
+                </div>
+                <div class="form-group col-md-5">
+                    <label for="data_nascimento">Data de nascimento <span class="text-muted small">(opcional, para mostrar a idade)</span></label>
+                    <input class="form-control" id="data_nascimento" name="data_nascimento" type="date" value="<%= form.data_nascimento || '' %>">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="foto">Foto <span class="text-muted small">(opcional, JPG, PNG ou WEBP, até 5 MB)</span></label>
+                <input class="form-control-file" id="foto" name="foto" type="file" accept="image/jpeg,image/png,image/webp">
+            </div>
+            <button class="btn btn-primary">Cadastrar</button>
+        </form>
+    </div>
+</div>
+
+<details class="card mb-4">
+    <summary class="card-header">Configurações da turma</summary>
+    <div class="card-body">
+        <form action="/turmas/<%= turma.id %>/renomear" method="POST" class="form-inline mb-4">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <label class="mr-2" for="novo_nome">Nome da turma</label>
+            <input class="form-control mr-2" id="novo_nome" name="nome" value="<%= turma.nome %>" maxlength="60" required>
+            <button class="btn btn-outline-primary">Renomear</button>
+        </form>
+        <form action="/turmas/<%= turma.id %>/excluir" method="POST" class="form-inline" onsubmit="return confirm('Excluir a turma, os candidatos, as fotos e todos os votos? Isso não pode ser desfeito.')">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <label class="mr-2" for="senha_excluir">Excluir a turma (digite sua senha)</label>
+            <input class="form-control mr-2" id="senha_excluir" name="senha" type="password" autocomplete="current-password" required>
+            <button class="btn btn-danger">Excluir turma</button>
+        </form>
+    </div>
+</details>
+<%- include("partes/rodape") %>

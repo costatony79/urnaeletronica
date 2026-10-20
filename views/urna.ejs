@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf" content="<%= csrf %>">
+    <title>Urna Eletrônica · <%= turma.nome %></title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="pagina-urna">
+<nav class="navbar navbar-dark bg-primary">
+    <span class="navbar-brand"><img src="/img/juslany.png" alt="Escola Municipal Juslany Flores"></span>
+    <div class="text-light h4 mb-0">MINHA URNA ELETRÔNICA · <%= turma.nome %></div>
+</nav>
+
+<div class="container-fluid" id="container-principal">
+    <div class="row">
+        <div class="col-md-7" id="tela">
+            <div id="tela-voto">
+                <div class="rotulo-tela" id="rotulo">SEU VOTO PARA LÍDER DE TURMA</div>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="displayUrna" id="display" aria-live="polite"></div>
+                    </div>
+                    <div class="col-6 text-center">
+                        <img id="foto" class="img-fluid foto-urna d-none" alt="">
+                    </div>
+                </div>
+                <hr>
+                <div class="h5 linha-info"><span class="rotulo">NOME:</span> <span id="nome"></span></div>
+                <div class="h5 linha-info" id="linha-idade"><span class="rotulo">IDADE:</span> <span id="idade"></span></div>
+                <div class="aviso-urna" id="aviso"></div>
+                <hr>
+                <div class="instrucoes" id="instrucoes">
+                    Digite o número do seu candidato.<br>
+                    Aperte <strong>CONFIRMA</strong> para votar ou <strong>CORRIGE</strong> para recomeçar.
+                </div>
+            </div>
+            <div id="tela-fim" class="d-none">FIM</div>
+        </div>
+        <div class="col-md-4 teclado" id="teclado">
+            <div><img class="img-fluid" src="/img/logo_teclado.png" alt="Eleição Líder de Turma"></div>
+            <div class="grade-teclas">
+                <% ['1','2','3','4','5','6','7','8','9','','0',''].forEach(t => { %>
+                    <% if (t) { %><button type="button" class="btn btn-dark tecla" data-tecla="<%= t %>"><%= t %></button>
+                    <% } else { %><span></span><% } %>
+                <% }) %>
+            </div>
+            <div class="grade-especiais">
+                <button type="button" class="btn btn-light text-dark tecla-especial" id="branco">BRANCO</button>
+                <button type="button" class="btn btn-warning text-dark tecla-especial" id="corrige">CORRIGE</button>
+                <button type="button" class="btn btn-success text-dark tecla-especial" id="confirma">CONFIRMA</button>
+            </div>
+        </div>
+    </div>
+    <div class="text-right mt-2">
+        <a class="link-encerrar" href="/urna/<%= turma.id %>/encerrar">Encerrar votação (professor)</a>
+    </div>
+</div>
+
+<script type="application/json" id="candidatos"><%- JSON.stringify(candidatos).replace(/</g, '\\u003c') %></script>
+<script>window.URNA_VOTAR = "/urna/<%= turma.id %>/votar";</script>
+<script src="/js/urna.js"></script>
+</body>
+</html>

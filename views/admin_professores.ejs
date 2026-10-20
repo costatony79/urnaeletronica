@@ -1,0 +1,79 @@
+<%- include("partes/topo", { titulo: "Professores" }) %>
+<h1 class="h3 mb-3">Professores</h1>
+
+<% if (credencial) { %>
+<div class="alert alert-success credencial">
+    <h2 class="h5"><%= credencial.nova ? "Conta criada" : "Senha redefinida" %>: <%= credencial.nome %></h2>
+    <p class="mb-2">Passe estes dados para o(a) professor(a). <strong>A senha só aparece agora</strong>; no primeiro acesso o sistema pede uma senha nova.</p>
+    <div class="bg-white border rounded p-3 mb-2 text-monospace">
+        Usuário: <strong><%= credencial.usuario %></strong><br>
+        Senha provisória: <strong><%= credencial.senha %></strong>
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-success" onclick="window.print()">Imprimir</button>
+</div>
+<% } %>
+
+<div class="card mb-4 d-print-none">
+    <div class="card-body">
+        <h2 class="h5">Criar conta</h2>
+        <% if (erro) { %><div class="alert alert-danger"><%= erro %></div><% } %>
+        <form action="/admin/professores" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label for="nome">Nome</label>
+                    <input class="form-control" id="nome" name="nome" value="<%= form.nome %>" maxlength="80" placeholder="Ex.: Maria Souza" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="usuario">Usuário (para entrar)</label>
+                    <input class="form-control" id="usuario" name="usuario" value="<%= form.usuario %>" maxlength="30" placeholder="Ex.: maria.souza" autocapitalize="none" required>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="papel">Tipo de conta</label>
+                    <select class="form-control" id="papel" name="papel">
+                        <option value="professor">Professor(a)</option>
+                        <option value="admin">Administrador(a)</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary">Criar e gerar senha provisória</button>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive d-print-none">
+<table class="table table-hover bg-white border">
+    <thead class="bg-primary text-light">
+        <tr><th>Nome</th><th>Usuário</th><th>Tipo</th><th>Turmas</th><th>Situação</th><th class="text-right">Ações</th></tr>
+    </thead>
+    <tbody>
+    <% professores.forEach(p => { %>
+        <tr class="<%= p.ativo ? '' : 'text-muted' %>">
+            <td><%= p.nome %></td>
+            <td><%= p.usuario %></td>
+            <td><%= p.papel === 'admin' ? 'Administrador' : 'Professor' %></td>
+            <td><%= p.turmas %></td>
+            <td>
+                <% if (!p.ativo) { %><span class="badge badge-secondary">Desativado</span>
+                <% } else if (p.trocar_senha) { %><span class="badge badge-warning">Aguardando 1º acesso</span>
+                <% } else { %><span class="badge badge-success">Ativo</span><% } %>
+            </td>
+            <td class="text-right text-nowrap">
+                <% if (p.id !== usuarioId) { %>
+                <form action="/admin/professores/<%= p.id %>/redefinir-senha" method="POST" class="d-inline" onsubmit="return confirm('Gerar uma nova senha provisória para <%= p.nome.replace(/['\\]/g, '') %>?')">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <button class="btn btn-sm btn-outline-primary">Nova senha</button>
+                </form>
+                <form action="/admin/professores/<%= p.id %>/ativo" method="POST" class="d-inline">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="ativo" value="<%= p.ativo ? 0 : 1 %>">
+                    <button class="btn btn-sm <%= p.ativo ? 'btn-outline-danger' : 'btn-outline-success' %>"><%= p.ativo ? 'Desativar' : 'Reativar' %></button>
+                </form>
+                <% } else { %><span class="text-muted small">Você</span><% } %>
+            </td>
+        </tr>
+    <% }) %>
+    </tbody>
+</table>
+</div>
+<%- include("partes/rodape") %>

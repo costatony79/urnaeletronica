@@ -1,0 +1,29 @@
+<%- include("partes/topo", { titulo: "Minhas turmas" }) %>
+<h1 class="h3 mb-3">Minhas turmas</h1>
+
+<% if (turmas.length === 0) { %>
+<div class="alert alert-light border">Você ainda não tem turmas. Crie a primeira abaixo.</div>
+<% } else { %>
+<div class="list-group mb-4">
+    <% turmas.forEach(t => { %>
+    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="/turmas/<%= t.id %>">
+        <span class="font-weight-bold"><%= t.nome %></span>
+        <span class="text-muted small"><%= t.candidatos %> candidato(s) · <%= t.votos %> voto(s)</span>
+    </a>
+    <% }) %>
+</div>
+<% } %>
+
+<div class="card">
+    <div class="card-body">
+        <h2 class="h5">Nova turma</h2>
+        <% if (erro) { %><div class="alert alert-danger"><%= erro %></div><% } %>
+        <form action="/turmas" method="POST" class="form-inline">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <label class="sr-only" for="nome">Nome da turma</label>
+            <input class="form-control mr-2 mb-2 flex-grow-1" id="nome" name="nome" placeholder="Ex.: 5º Ano B" maxlength="60" required>
+            <button class="btn btn-primary mb-2">Criar turma</button>
+        </form>
+    </div>
+</div>
+<%- include("partes/rodape") %>

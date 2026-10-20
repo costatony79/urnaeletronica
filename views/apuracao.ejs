@@ -1,0 +1,48 @@
+<%- include("partes/topo", { titulo: "Boletim de urna" }) %>
+<nav aria-label="breadcrumb" class="d-print-none"><ol class="breadcrumb bg-transparent px-0">
+    <li class="breadcrumb-item"><a href="/painel">Minhas turmas</a></li>
+    <li class="breadcrumb-item"><a href="/turmas/<%= turma.id %>"><%= turma.nome %></a></li>
+    <li class="breadcrumb-item active">Apuração</li>
+</ol></nav>
+<div class="card">
+    <div class="card-body">
+        <h1 class="h2 text-center mb-0">BOLETIM DE URNA</h1>
+        <p class="text-center text-muted"><%= turma.nome %> · <%= agora %></p>
+        <table class="table table-bordered text-center">
+            <thead class="bg-primary text-light">
+                <tr><th>NÚMERO</th><th>CANDIDATO</th><th>VOTOS</th><th>%</th></tr>
+            </thead>
+            <tbody>
+            <% resultado.forEach((c, i) => { %>
+                <tr class="<%= i === 0 && c.votos > 0 && (resultado.length === 1 || c.votos > resultado[1].votos) ? 'table-success font-weight-bold' : '' %>">
+                    <td><%= c.numero %></td>
+                    <td><%= c.nome %></td>
+                    <td><%= c.votos %></td>
+                    <td><%= total ? Math.round(c.votos * 1000 / total) / 10 : 0 %>%</td>
+                </tr>
+            <% }) %>
+                <tr class="text-muted"><td>—</td><td>Brancos</td><td><%= brancos %></td><td><%= total ? Math.round(brancos * 1000 / total) / 10 : 0 %>%</td></tr>
+                <tr class="text-muted"><td>—</td><td>Nulos</td><td><%= nulos %></td><td><%= total ? Math.round(nulos * 1000 / total) / 10 : 0 %>%</td></tr>
+            </tbody>
+            <tfoot><tr class="font-weight-bold"><td colspan="2">TOTAL DE VOTOS</td><td><%= total %></td><td></td></tr></tfoot>
+        </table>
+        <% if (resultado.length > 1 && resultado[0].votos > 0 && resultado[0].votos === resultado[1].votos) { %>
+        <div class="alert alert-warning">Houve empate no primeiro lugar.</div>
+        <% } %>
+        <button type="button" class="btn btn-outline-primary d-print-none" onclick="window.print()">Imprimir boletim</button>
+    </div>
+</div>
+
+<div class="card mt-4 d-print-none">
+    <div class="card-body">
+        <h2 class="h5">Iniciar nova eleição</h2>
+        <p class="small text-muted">Apaga todos os votos desta turma. Os candidatos continuam cadastrados.</p>
+        <form action="/turmas/<%= turma.id %>/zerar" method="POST" class="form-inline" onsubmit="return confirm('Apagar todos os votos desta turma?')">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <label class="mr-2" for="senha">Sua senha</label>
+            <input class="form-control mr-2" id="senha" name="senha" type="password" autocomplete="current-password" required>
+            <button class="btn btn-danger">Zerar votos</button>
+        </form>
+    </div>
+</div>
+<%- include("partes/rodape") %>
