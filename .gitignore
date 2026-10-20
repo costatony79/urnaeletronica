@@ -1,0 +1,12 @@
+# Dependências (instaladas com "yarn" ou "npm install")
+node_modules/
+
+# Logs
+*.log
+
+# Fotos dos alunos: ficam só no computador, nunca no GitHub
+public/img/[0-9]*.png
+public/img/alunos/
+
+# Configurações locais e senhas
+.env
