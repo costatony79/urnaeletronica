@@ -172,8 +172,18 @@ if ! command -v caddy >/dev/null 2>&1; then
   apt-get update -q
   apt-get install -y -q caddy >/dev/null
 fi
+# Cada app tem o próprio arquivo em /etc/caddy/sites/; o Caddyfile principal só importa todos.
+# Assim, atualizar a urna não mexe na configuração de outros apps do mesmo servidor.
+mkdir -p /etc/caddy/sites
+if ! grep -qs '^import sites/\*' /etc/caddy/Caddyfile; then
+  if [ -s /etc/caddy/Caddyfile ] && ! grep -q 'Caddy Documentation\|caddyserver.com/docs/caddyfile' /etc/caddy/Caddyfile; then
+    cp /etc/caddy/Caddyfile "/etc/caddy/Caddyfile.antes-$(date +%Y%m%d%H%M%S)"
+  fi
+  printf '# Cada app tem o seu arquivo em /etc/caddy/sites/\nimport sites/*.caddy\n' > /etc/caddy/Caddyfile
+fi
+SITE=/etc/caddy/sites/urnaeletronica.caddy
 if [ -n "$DOMINIO" ]; then
-  cat > /etc/caddy/Caddyfile <<EOF
+  cat > "$SITE" <<EOF
 $DOMINIO {
 	encode gzip
 	reverse_proxy 127.0.0.1:$PORTA
@@ -183,15 +193,17 @@ $DOMINIO {
 }
 EOF
 else
-  cat > /etc/caddy/Caddyfile <<EOF
+  cat > "$SITE" <<EOF
 :80 {
 	encode gzip
 	reverse_proxy 127.0.0.1:$PORTA
 }
 EOF
 fi
+caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile >/dev/null 2>&1 || {
+  aviso "A configuração do Caddy tem erro. Veja com: sudo caddy validate --config /etc/caddy/Caddyfile"; exit 1; }
 systemctl enable -q caddy
-systemctl restart caddy
+systemctl reload caddy 2>/dev/null || systemctl restart caddy
 
 # ---------------------------------------------------------------------------
 etapa "7/7 Pronto"
@@ -215,3 +227,10 @@ echo "Comandos úteis:"
 echo "   sudo systemctl status urnaeletronica     (ver se a urna está rodando)"
 echo "   sudo journalctl -u urnaeletronica -n 50  (ver os últimos registros)"
 echo "   sudo cp -r $PASTA_DADOS ~/backup-urna    (fazer backup dos dados)"
+echo
+echo "Outros apps no mesmo servidor: rode cada um numa porta interna diferente (a urna usa a $PORTA)"
+echo "e crie um arquivo para ele em /etc/caddy/sites/, por exemplo /etc/caddy/sites/outroapp.caddy:"
+echo "   outroapp.duckdns.org {"
+echo "       reverse_proxy 127.0.0.1:3000"
+echo "   }"
+echo "Depois: sudo systemctl reload caddy"
