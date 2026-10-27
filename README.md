@@ -66,7 +66,22 @@ Para fazer backup, copie a pasta `data/` com o sistema desligado.
 
 As variáveis `ADMIN_*` só valem na primeira vez, quando ainda não existe administrador.
 
-## Colocando online
+## Colocando online (servidor Ubuntu, como a VM gratuita da Oracle)
+
+1. No painel da nuvem, libere as portas **80** e **443** (na Oracle: Security List, regras de entrada TCP).
+2. Crie um nome de domínio apontando para o IP do servidor (por exemplo, grátis no DuckDNS).
+3. Entre no servidor pelo SSH e rode, trocando pelo seu domínio:
+
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/costatony79/urnaeletronica/main/deploy/instalar.sh | sudo bash -s -- seu-nome.duckdns.org
+   ```
+
+O script (`deploy/instalar.sh`) cria espaço de troca, libera as portas no firewall do Ubuntu,
+instala o Node.js 22 e o Caddy (HTTPS automático), baixa a urna, configura o serviço que inicia
+sozinho e mostra a senha provisória do administrador. Os dados ficam em `/var/lib/urnaeletronica`.
+Para **atualizar** a urna depois de mudanças no GitHub, rode o mesmo comando de novo.
+
+## Colocando online em outro servidor
 
 O sistema precisa de um servidor que rode Node.js e guarde a pasta `data/` de forma
 permanente (uma máquina virtual, por exemplo). Ao publicar na internet:
